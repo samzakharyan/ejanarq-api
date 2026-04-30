@@ -25,11 +25,13 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|max:20',
-            'last_name' => 'required|string|max:20',
+            'user_type' => ['required', Rule::enum(UserTypeEnum::class)],
+            'first_name' => 'required_if:user_type,user|nullable|string|max:20',
+            'last_name' => 'required_if:user_type,user|nullable|string|max:20',
+            'name' => 'required_if:user_type,shop|nullable|string|max:20',
+            'tax_id' => ['required_if:user_type,shop','nullable','string','unique:users,tax_id'],
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
-            'user_type' => ['required', Rule::enum(UserTypeEnum::class)],
         ];
     }
 
@@ -38,6 +40,9 @@ class RegisterRequest extends FormRequest
         return [
             'first_name.required' => 'Անունը պարտադիր է',
             'last_name.required' => 'Ազգանունը պարտադիր է',
+            'name.required' => 'Անունը պարտադիր է',
+            'tax_id.required' => 'ՀՎՀՀ-ն պարտադիր է',
+            'tax_id.unique' => 'ՀՎՀՀ-ն արդեն օգտագործված է',
             'email.required' => 'Էլ․ հասցեն պարտադիր է',
             'email.email' => 'Էլ․ հասցեն անվավեր է',
             'email.unique' => 'Էլ․ հասցեն արդեն օգտագործված է',
@@ -57,8 +62,10 @@ class RegisterRequest extends FormRequest
         $data = $this->validated();
 
         return new UserDto(
-            firstName: $data['first_name'],
-            lastName: $data['last_name'],
+            firstName: $data['first_name'] ?? null,
+            lastName: $data['last_name'] ?? null,
+            name: $data['name'] ?? null,
+            taxId: $data['tax_id'] ?? null,
             email: $data['email'],
             type: $data['user_type'],
             password: $data['password'],

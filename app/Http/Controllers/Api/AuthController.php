@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -24,10 +23,6 @@ class AuthController extends Controller
     {
         $userDto = $request->toDto();
         $token = $this->userService->createUser($userDto);
-
-        // event(new Registered($user));
-
-        // $token = $user->createToken('api-token')->accessToken;
 
         return response()->json([
             'user' => $userDto,
